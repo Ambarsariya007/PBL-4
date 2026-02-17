@@ -1,183 +1,1800 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PBL Presentation | 2026</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap');
-        body { background-color: #020617; color: #f8fafc; font-family: 'Plus Jakarta Sans', sans-serif; scroll-behavior: smooth; }
-        .glass { background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(15px); border: 1px solid rgba(255, 255, 255, 0.1); }
-        .gradient-text { background: linear-gradient(90deg, #60a5fa, #a855f7); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-        #timerContainer { background: #ffffff; color: #020617; box-shadow: 0 10px 40px rgba(0,0,0,0.8); border: 3px solid #3b82f6; z-index: 1000; }
-        @keyframes flicker { 0%, 100% { background-color: #ffffff; } 50% { background-color: #fca5a5; } }
-        .timer-warning { animation: flicker 1s infinite; border: 3px solid #ef4444 !important; color: #b91c1c !important; }
-        .timer-stop { background-color: #991b1b !important; color: #ffffff !important; border: 3px solid #f87171 !important; animation: none; }
-    </style>
-</head>
-<body onload="startTimer()">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CURA | Clinical AI Assistant — PBL 2026</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-    <div id="timerContainer" class="fixed bottom-10 right-10 px-8 py-4 rounded-3xl flex items-center gap-4 transition-all">
-        <i class="fas fa-hourglass-start text-blue-600 text-2xl" id="timerIcon"></i>
-        <span id="displayTime" class="text-4xl font-black font-mono tracking-tighter">00:00</span>
+  <style>
+    /* ─── RESET & BASE ─────────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+
+    :root {
+      --red:       #c8102e;
+      --red-light: #e8243d;
+      --red-pale:  #fdf1f3;
+      --blue:      #1a5fa8;
+      --blue-light:#e8f1fb;
+      --gray-50:   #f9fafb;
+      --gray-100:  #f3f4f6;
+      --gray-200:  #e5e7eb;
+      --gray-400:  #9ca3af;
+      --gray-600:  #4b5563;
+      --gray-800:  #1f2937;
+      --gray-900:  #111827;
+      --white:     #ffffff;
+      --shadow-sm: 0 1px 3px rgba(0,0,0,.06), 0 1px 2px rgba(0,0,0,.04);
+      --shadow-md: 0 4px 16px rgba(0,0,0,.07), 0 2px 6px rgba(0,0,0,.04);
+      --shadow-lg: 0 12px 40px rgba(0,0,0,.10), 0 4px 12px rgba(0,0,0,.06);
+      --radius-sm: 8px;
+      --radius-md: 14px;
+      --radius-lg: 22px;
+      --radius-xl: 32px;
+    }
+
+    body {
+      font-family: 'DM Sans', system-ui, sans-serif;
+      background: var(--gray-50);
+      color: var(--gray-800);
+      font-size: 17px;
+      line-height: 1.7;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ─── NAV ──────────────────────────────────────────────────── */
+    nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      background: rgba(255,255,255,0.94);
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--gray-200);
+      padding: 0 2.5rem;
+      height: 66px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .nav-logo {
+      font-family: 'DM Serif Display', serif;
+      font-size: 1.6rem;
+      color: var(--red);
+      letter-spacing: -0.01em;
+    }
+    .nav-links {
+      display: flex;
+      gap: 2rem;
+      list-style: none;
+    }
+    .nav-links a {
+      text-decoration: none;
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--gray-600);
+      letter-spacing: 0.02em;
+      text-transform: uppercase;
+      transition: color .2s;
+    }
+    .nav-links a:hover { color: var(--red); }
+
+    /* ─── LAYOUT ───────────────────────────────────────────────── */
+    main {
+      max-width: 1160px;
+      margin: 0 auto;
+      padding: 100px 2rem 80px;
+    }
+    .section-gap { margin-top: 80px; }
+
+    /* ─── SECTION WRAPPERS ─────────────────────────────────────── */
+    .card {
+      background: var(--white);
+      border: 1px solid var(--gray-200);
+      border-radius: var(--radius-lg);
+      padding: 2.5rem;
+      box-shadow: var(--shadow-md);
+    }
+    .card-lg { padding: 3rem; }
+
+    .section-label {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--red);
+      background: var(--red-pale);
+      border: 1px solid rgba(200,16,46,.15);
+      padding: 4px 12px;
+      border-radius: 999px;
+      margin-bottom: 1rem;
+    }
+    .section-title {
+      font-family: 'DM Serif Display', serif;
+      font-size: clamp(2rem, 4vw, 2.8rem);
+      line-height: 1.2;
+      color: var(--gray-900);
+      letter-spacing: -0.02em;
+    }
+    .section-subtitle {
+      color: var(--gray-600);
+      font-size: 1.05rem;
+      margin-top: 0.6rem;
+      max-width: 640px;
+    }
+
+    /* ─── DIVIDER ──────────────────────────────────────────────── */
+    .divider {
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--gray-200), transparent);
+      margin: 5rem 0;
+    }
+
+    /* ─── HERO ─────────────────────────────────────────────────── */
+    .hero {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 3rem;
+      align-items: center;
+      padding-top: 2rem;
+    }
+    @media(max-width:760px){ .hero { grid-template-columns:1fr; } }
+    .hero-tag {
+      display: inline-block;
+      background: var(--red-pale);
+      color: var(--red);
+      font-size: 0.8rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      padding: 5px 14px;
+      border-radius: 999px;
+      border: 1px solid rgba(200,16,46,.18);
+      margin-bottom: 1.25rem;
+    }
+    .hero-h1 {
+      font-family: 'DM Serif Display', serif;
+      font-size: clamp(3.2rem, 7vw, 5.5rem);
+      line-height: 1.05;
+      color: var(--gray-900);
+      letter-spacing: -0.04em;
+    }
+    .hero-h1 span { color: var(--red); }
+    .hero-desc {
+      margin-top: 1.25rem;
+      font-size: 1.1rem;
+      color: var(--gray-600);
+      line-height: 1.75;
+    }
+    .hero-desc strong { color: var(--blue); font-weight: 600; }
+    .hero-badges {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.6rem;
+      margin-top: 1.75rem;
+    }
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 14px;
+      border-radius: 999px;
+      font-size: 0.82rem;
+      font-weight: 600;
+    }
+    .badge-red { background: var(--red-pale); color: var(--red); border: 1px solid rgba(200,16,46,.2); }
+    .badge-blue { background: var(--blue-light); color: var(--blue); border: 1px solid rgba(26,95,168,.2); }
+    .badge-gray { background: var(--gray-100); color: var(--gray-600); border: 1px solid var(--gray-200); }
+
+    .hero-visual {
+      background: linear-gradient(135deg, #fff5f6 0%, #f0f6ff 100%);
+      border: 1px solid var(--gray-200);
+      border-radius: var(--radius-xl);
+      padding: 2.5rem;
+      box-shadow: var(--shadow-lg);
+    }
+    .hero-stat-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+    }
+    .hero-stat {
+      background: var(--white);
+      border: 1px solid var(--gray-200);
+      border-radius: var(--radius-md);
+      padding: 1.25rem;
+      box-shadow: var(--shadow-sm);
+    }
+    .hero-stat__num {
+      font-family: 'DM Serif Display', serif;
+      font-size: 2rem;
+      color: var(--red);
+      line-height: 1;
+    }
+    .hero-stat__label {
+      font-size: 0.8rem;
+      color: var(--gray-400);
+      margin-top: 4px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
+    /* ─── FEATURE GRID ─────────────────────────────────────────── */
+    .feat-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 1rem;
+    }
+    .feat-card {
+      background: var(--gray-50);
+      border: 1px solid var(--gray-200);
+      border-radius: var(--radius-md);
+      padding: 1.5rem;
+      transition: box-shadow .2s, border-color .2s;
+    }
+    .feat-card:hover {
+      box-shadow: var(--shadow-md);
+      border-color: rgba(200,16,46,.25);
+    }
+    .feat-icon {
+      width: 40px; height: 40px;
+      border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      margin-bottom: 0.85rem;
+      font-size: 1.1rem;
+    }
+    .feat-icon-red { background: var(--red-pale); color: var(--red); }
+    .feat-icon-blue { background: var(--blue-light); color: var(--blue); }
+    .feat-icon-green { background: #f0fdf4; color: #15803d; }
+    .feat-icon-amber { background: #fffbeb; color: #b45309; }
+    .feat-card h3 {
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: var(--gray-800);
+      margin-bottom: 0.35rem;
+    }
+    .feat-card p {
+      font-size: 0.875rem;
+      color: var(--gray-600);
+      line-height: 1.6;
+    }
+
+    /* ─── STEP FLOW ────────────────────────────────────────────── */
+    .step-flow {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0;
+      position: relative;
+    }
+    @media(max-width:640px){ .step-flow { grid-template-columns:1fr; } }
+    .step-flow::before {
+      content: '';
+      position: absolute;
+      top: 28px;
+      left: calc(16.66% + 1rem);
+      right: calc(16.66% + 1rem);
+      height: 2px;
+      background: var(--gray-200);
+    }
+    @media(max-width:640px){ .step-flow::before { display:none; } }
+    .step-item { text-align: center; padding: 0 1rem; }
+    .step-num {
+      width: 56px; height: 56px;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      margin: 0 auto 1rem;
+      font-family: 'DM Serif Display', serif;
+      font-size: 1.4rem;
+      position: relative;
+      z-index: 1;
+    }
+    .step-num-red { background: var(--red); color: var(--white); }
+    .step-num-blue { background: var(--blue); color: var(--white); }
+    .step-num-gray { background: var(--gray-800); color: var(--white); }
+    .step-item h3 { font-size: 1rem; font-weight: 700; margin-bottom: 0.4rem; }
+    .step-item p { font-size: 0.875rem; color: var(--gray-600); }
+
+    /* ─── RANDOM FOREST TREE  ──────────────────────────────────── */
+    #rf-section { position: relative; }
+    #rf-container {
+      width: 100%;
+      overflow: visible;
+      position: relative;
+    }
+    #rf-svg-canvas {
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      pointer-events: none;
+      overflow: visible;
+      z-index: 0;
+    }
+    #rf-tree-body {
+      position: relative;
+      z-index: 1;
+    }
+    /* Tree rows */
+    .tree-row {
+      display: flex;
+      justify-content: center;
+      gap: 16px;
+      margin-bottom: 0;
+    }
+    .tree-spacer { flex: 1; }
+
+    /* Node */
+    .rf-node {
+      position: relative;
+      border-radius: var(--radius-md);
+      padding: 12px 16px;
+      cursor: default;
+      transition: transform .2s, box-shadow .2s;
+      border: 2px solid transparent;
+      min-width: 140px;
+      max-width: 210px;
+      text-align: center;
+      flex-shrink: 0;
+    }
+    .rf-node { cursor: pointer; }
+    .rf-node--internal {
+      background: var(--white);
+      border-color: var(--gray-200);
+      box-shadow: var(--shadow-md);
+    }
+    .rf-node.rf-hovered {
+      border-color: var(--red) !important;
+      box-shadow: 0 0 0 3px rgba(200,16,46,.12), var(--shadow-md) !important;
+    }
+
+    /* Leaf color coding */
+    .rf-node--dimorphic { background: #f8f9fa; border-color: #adb5bd; }
+    .rf-node--malaria   { background: #e0f2fe; border-color: #0369a1; }
+    .rf-node--pneumonia { background: #dbeafe; border-color: #1d4ed8; }
+    .rf-node--varicose  { background: #f5f3ff; border-color: #7c3aed; }
+    .rf-node--arthritis { background: #fef3c7; border-color: #d97706; }
+
+    .rf-node__condition {
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: var(--gray-800);
+      line-height: 1.4;
+      font-family: 'DM Sans', monospace;
+    }
+    .rf-node__chips {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+      margin-top: 8px;
+      align-items: center;
+    }
+    .rf-chip {
+      font-size: 0.7rem;
+      font-weight: 600;
+      padding: 2px 8px;
+      border-radius: 999px;
+      white-space: nowrap;
+    }
+    .rf-chip--gini    { background: #fce7f3; color: #be185d; }
+    .rf-chip--samples { background: var(--blue-light); color: var(--blue); }
+    .rf-chip--pred    { background: var(--gray-100); color: var(--gray-700); border: 1px solid var(--gray-200); }
+
+    /* Class badges on leaf nodes */
+    .class-badge {
+      font-size: 0.72rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      padding: 3px 10px;
+      border-radius: 999px;
+      margin-top: 6px;
+      display: inline-block;
+    }
+    .cb-malaria   { background: #0369a1; color: #fff; }
+    .cb-pneumonia { background: #1d4ed8; color: #fff; }
+    .cb-varicose  { background: #7c3aed; color: #fff; }
+    .cb-arthritis { background: #d97706; color: #fff; }
+    .cb-dimorphic { background: #374151; color: #fff; }
+
+    /* SVG connectors */
+    .rf-link {
+      stroke: #d1d5db;
+      stroke-width: 2;
+      fill: none;
+      transition: stroke .3s, stroke-width .3s;
+    }
+    .rf-link--hi { stroke: var(--red); stroke-width: 2.5; }
+    .rf-branch-label {
+      font-size: 11px;
+      fill: var(--gray-400);
+      font-weight: 600;
+    }
+
+    /* ── Node Inspector Panel ─────────────────── */
+    .rf-inspector-wrap {
+      display: grid;
+      grid-template-columns: 1fr 280px;
+      gap: 1.5rem;
+      align-items: start;
+    }
+    @media (max-width: 900px) {
+      .rf-inspector-wrap { grid-template-columns: 1fr; }
+    }
+    .rf-inspector {
+      position: sticky;
+      top: 86px;
+      background: var(--white);
+      border: 1.5px solid var(--gray-200);
+      border-radius: var(--radius-md);
+      overflow: hidden;
+      box-shadow: var(--shadow-md);
+      transition: border-color .25s;
+    }
+    .rf-inspector.active {
+      border-color: rgba(200,16,46,.35);
+    }
+    .rf-inspector__header {
+      background: var(--gray-50);
+      border-bottom: 1px solid var(--gray-200);
+      padding: 14px 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .rf-inspector__dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      background: var(--gray-300);
+      transition: background .25s;
+      flex-shrink: 0;
+    }
+    .rf-inspector.active .rf-inspector__dot { background: var(--red); }
+    .rf-inspector__title {
+      font-size: 0.72rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--gray-500);
+    }
+    .rf-inspector.active .rf-inspector__title { color: var(--red); }
+    .rf-inspector__body {
+      padding: 16px;
+      min-height: 260px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+    .rf-inspector__empty {
+      text-align: center;
+      color: var(--gray-400);
+      font-size: 0.82rem;
+      line-height: 1.6;
+    }
+    .rf-inspector__empty i {
+      display: block;
+      font-size: 1.6rem;
+      margin-bottom: 8px;
+      opacity: .4;
+    }
+    .rf-inspector__content {
+      display: none;
+      flex-direction: column;
+      gap: 10px;
+      animation: fadeInUp .22s ease both;
+    }
+    .rf-inspector__content.visible { display: flex; }
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(6px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .rf-insp-row {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+    .rf-insp-label {
+      font-size: 0.67rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--gray-400);
+    }
+    .rf-insp-value {
+      font-size: 0.88rem;
+      font-weight: 600;
+      color: var(--gray-900);
+      font-family: 'DM Sans', monospace;
+    }
+    .rf-insp-value.mono {
+      font-family: ui-monospace, 'Courier New', monospace;
+      font-size: 0.82rem;
+    }
+    .rf-insp-divider {
+      height: 1px;
+      background: var(--gray-100);
+    }
+    .rf-insp-pill {
+      display: inline-block;
+      padding: 3px 10px;
+      border-radius: 999px;
+      font-size: 0.75rem;
+      font-weight: 700;
+    }
+    .rf-insp-pill-red   { background: var(--red-pale); color: var(--red); border: 1px solid rgba(200,16,46,.2); }
+    .rf-insp-pill-blue  { background: var(--blue-light); color: var(--blue); border: 1px solid rgba(26,95,168,.2); }
+    .rf-insp-pill-green { background: #f0fdf4; color: #15803d; border: 1px solid #bbf7d0; }
+    .rf-insp-pill-gray  { background: var(--gray-100); color: var(--gray-600); border: 1px solid var(--gray-200); }
+    .rf-insp-pill-amber { background: #fffbeb; color: #b45309; border: 1px solid #fde68a; }
+    .rf-insp-pill-purple{ background: #f5f3ff; color: #7c3aed; border: 1px solid #ddd6fe; }
+    .rf-insp-explanation {
+      background: var(--gray-50);
+      border: 1px solid var(--gray-200);
+      border-radius: var(--radius-sm);
+      padding: 10px 12px;
+      font-size: 0.78rem;
+      color: var(--gray-600);
+      line-height: 1.6;
+    }
+    .rf-insp-explanation strong { color: var(--gray-800); }
+
+    /* ─── TREE LAYOUT ─────────────────────────────────────────── */
+    #rf-tree-body {
+      padding-bottom: 2rem;
+    }
+    .tree-level {
+      display: flex;
+      width: 100%;
+      margin-bottom: 0;
+      position: relative;
+    }
+    /* Each level's vertical gap from the previous */
+    .tree-gap { height: 56px; }
+    .tree-gap-sm { height: 44px; }
+
+    /* ─── RESULTS / CHART ──────────────────────────────────────── */
+    .results-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.5rem;
+      align-items: start;
+    }
+    @media(max-width:700px){ .results-grid { grid-template-columns:1fr; } }
+    .stat-big {
+      text-align: center;
+      padding: 1.75rem 1rem;
+      border-radius: var(--radius-md);
+      border: 1px solid var(--gray-200);
+      background: var(--white);
+    }
+    .stat-big__val {
+      font-family: 'DM Serif Display', serif;
+      font-size: 3rem;
+      line-height: 1;
+      color: var(--red);
+    }
+    .stat-big__lbl {
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      font-weight: 600;
+      color: var(--gray-500);
+      margin-top: 6px;
+    }
+    .metrics-strip {
+      display: grid;
+      grid-template-columns: repeat(2,1fr);
+      gap: 0.75rem;
+    }
+
+    /* ─── COMMUNITY RECOGNITION ────────────────────────────────── */
+    .recognition-meta {
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+      flex-wrap: wrap;
+      margin-top: 1.25rem;
+      margin-bottom: 2rem;
+    }
+    .recognition-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 18px;
+      border-radius: 999px;
+      font-size: 0.85rem;
+      font-weight: 700;
+    }
+    .recognition-badge-gold {
+      background: #fffbeb;
+      color: #92400e;
+      border: 1.5px solid #fde68a;
+    }
+    .recognition-badge-red {
+      background: var(--red-pale);
+      color: var(--red);
+      border: 1.5px solid rgba(200,16,46,.2);
+    }
+    .cert-wrapper {
+      display: flex;
+      justify-content: center;
+    }
+    .cert-frame {
+      position: relative;
+      display: inline-block;
+      border-radius: var(--radius-lg);
+      border: 2.5px solid rgba(200,16,46,.35);
+      box-shadow:
+        0 0 0 6px rgba(200,16,46,.06),
+        0 20px 60px rgba(0,0,0,.13),
+        0 6px 18px rgba(0,0,0,.08);
+      overflow: hidden;
+      cursor: zoom-in;
+      transition: transform .3s cubic-bezier(.34,1.56,.64,1),
+                  box-shadow .3s ease;
+      max-width: 780px;
+      width: 100%;
+    }
+    .cert-frame:hover {
+      transform: scale(1.018);
+      box-shadow:
+        0 0 0 6px rgba(200,16,46,.12),
+        0 28px 72px rgba(0,0,0,.18),
+        0 8px 24px rgba(0,0,0,.10);
+    }
+    .cert-frame img {
+      display: block;
+      width: 100%;
+      height: auto;
+      border-radius: calc(var(--radius-lg) - 2px);
+    }
+    .cert-zoom-hint {
+      position: absolute;
+      bottom: 14px;
+      right: 14px;
+      background: rgba(255,255,255,.88);
+      backdrop-filter: blur(8px);
+      border: 1px solid var(--gray-200);
+      border-radius: 999px;
+      padding: 5px 13px;
+      font-size: 0.72rem;
+      font-weight: 700;
+      color: var(--gray-600);
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      pointer-events: none;
+      opacity: 0;
+      transform: translateY(4px);
+      transition: opacity .25s, transform .25s;
+    }
+    .cert-frame:hover .cert-zoom-hint {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* ── Certificate Modal ───────────────────────────────────────── */
+    #certModal {
+      position: fixed;
+      inset: 0;
+      z-index: 9000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1.5rem;
+      background: rgba(10, 10, 15, 0.82);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity .3s ease;
+    }
+    #certModal.open {
+      opacity: 1;
+      pointer-events: all;
+    }
+    #certModal.open #certModalImg {
+      transform: scale(1);
+    }
+    #certModalImg {
+      display: block;
+      max-width: min(900px, 92vw);
+      max-height: 88vh;
+      width: auto;
+      height: auto;
+      border-radius: var(--radius-lg);
+      border: 2px solid rgba(255,255,255,.15);
+      box-shadow: 0 32px 100px rgba(0,0,0,.6);
+      transform: scale(.94);
+      transition: transform .35s cubic-bezier(.34,1.4,.64,1);
+      cursor: default;
+    }
+    #certModalClose {
+      position: absolute;
+      top: 1.25rem;
+      right: 1.25rem;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: rgba(255,255,255,.12);
+      border: 1px solid rgba(255,255,255,.2);
+      color: #fff;
+      font-size: 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: background .2s;
+      z-index: 9001;
+    }
+    #certModalClose:hover { background: rgba(255,255,255,.22); }
+    body.modal-open { overflow: hidden; }
+
+    /* ─── TEAM ─────────────────────────────────────────────────── */
+    .team-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 1.25rem;
+    }
+    .team-card {
+      background: var(--white);
+      border: 1px solid var(--gray-200);
+      border-radius: var(--radius-md);
+      padding: 1.5rem;
+      text-align: center;
+      box-shadow: var(--shadow-sm);
+    }
+    .team-avatar {
+      width: 52px; height: 52px;
+      border-radius: 50%;
+      background: var(--gray-100);
+      border: 2px solid var(--gray-200);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.2rem;
+      color: var(--gray-500);
+      margin: 0 auto 0.75rem;
+    }
+    .team-role { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.1em; font-weight: 700; color: var(--red); margin-bottom: 0.3rem; }
+    .team-name { font-weight: 700; font-size: 1rem; color: var(--gray-900); }
+    .team-id { font-size: 0.8rem; color: var(--gray-400); margin-top: 3px; }
+
+    /* ─── FOOTER ───────────────────────────────────────────────── */
+    footer {
+      background: var(--gray-900);
+      color: rgba(255,255,255,.45);
+      text-align: center;
+      padding: 2rem;
+      font-size: 0.82rem;
+      margin-top: 5rem;
+    }
+    footer span { color: var(--red); }
+
+    /* ─── UTILITIES ────────────────────────────────────────────── */
+    .mt-1 { margin-top: 0.25rem; }
+    .mt-2 { margin-top: 0.5rem; }
+    .mt-3 { margin-top: 0.75rem; }
+    .mt-4 { margin-top: 1rem; }
+    .mt-6 { margin-top: 1.5rem; }
+    .mt-8 { margin-top: 2rem; }
+    .mb-2 { margin-bottom: 0.5rem; }
+    .mb-4 { margin-bottom: 1rem; }
+    .mb-6 { margin-bottom: 1.5rem; }
+    .mb-8 { margin-bottom: 2rem; }
+    .text-sm { font-size: 0.875rem; }
+    .text-xs { font-size: 0.75rem; }
+    .text-gray { color: var(--gray-600); }
+    .text-red { color: var(--red); }
+    .text-blue { color: var(--blue); }
+    .font-bold { font-weight: 700; }
+    .flex { display: flex; }
+    .items-center { align-items: center; }
+    .gap-2 { gap: 0.5rem; }
+    .gap-3 { gap: 0.75rem; }
+
+    /* ─── INTRO RED STRIP ──────────────────────────────────────── */
+    .red-strip {
+      background: var(--red);
+      border-radius: var(--radius-lg);
+      padding: 1.5rem 2rem;
+      color: var(--white);
+      display: flex;
+      align-items: center;
+      gap: 1.25rem;
+      margin-top: 2rem;
+    }
+    .red-strip i { font-size: 1.5rem; opacity: 0.85; }
+    .red-strip p { font-size: 0.95rem; line-height: 1.6; opacity: 0.93; }
+
+  </style>
+</head>
+
+<body>
+
+<!-- ═══ NAV ═══════════════════════════════════════════════════════ -->
+<nav>
+  <div class="nav-logo">CURA</div>
+  <ul class="nav-links">
+    <li><a href="#problem">Problem</a></li>
+    <li><a href="#why-rf">Why RF</a></li>
+    <li><a href="#methodology">Methodology</a></li>
+    <li><a href="#rf-section">Model</a></li>
+    <li><a href="#results">Results</a></li>
+    <li><a href="#community">Hackathon</a></li>
+    <li><a href="#team">Team</a></li>
+  </ul>
+</nav>
+
+<main>
+
+  <!-- ═══ HERO ══════════════════════════════════════════════════════ -->
+  <section class="hero">
+    <div>
+      <span class="hero-tag">PBL 2026 · Clinical AI</span>
+      <h1 class="hero-h1"><span>CURA</span><br>Clinical AI<br>Assistant</h1>
+      <p class="hero-desc">
+        AI-powered differential diagnosis using <strong>Random Forest</strong> on TF-IDF symptom features,
+        with a <strong>RAG engine</strong> for instant medical textbook retrieval and structured case sheet generation.
+      </p>
+      <div class="hero-badges">
+        <span class="badge badge-red"><i class="fas fa-tree"></i> Random Forest (400 trees)</span>
+        <span class="badge badge-blue"><i class="fas fa-book-medical"></i> RAG · Textbook Retrieval</span>
+        <span class="badge badge-gray"><i class="fas fa-file-medical"></i> Case Sheet Generator</span>
+      </div>
+    </div>
+    <div class="hero-visual">
+      <div style="font-size:0.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--gray-400);margin-bottom:1rem;">Model Snapshot</div>
+      <div class="hero-stat-grid">
+        <div class="hero-stat">
+          <div class="hero-stat__num">96%</div>
+          <div class="hero-stat__label">Test Accuracy</div>
+        </div>
+        <div class="hero-stat">
+          <div class="hero-stat__num">400</div>
+          <div class="hero-stat__label">Decision Trees</div>
+        </div>
+        <div class="hero-stat">
+          <div class="hero-stat__num">5,000</div>
+          <div class="hero-stat__label">TF-IDF Features</div>
+        </div>
+        <div class="hero-stat">
+          <div class="hero-stat__num">41</div>
+          <div class="hero-stat__label">Disease Classes</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- ═══ PROBLEM ═══════════════════════════════════════════════════ -->
+  <section id="problem">
+    <span class="section-label"><i class="fas fa-circle-exclamation"></i> Problem Statement</span>
+    <h2 class="section-title">The Clinical Documentation Gap</h2>
+    <p class="section-subtitle">
+      Clinicians spend significant time on manual documentation and textbook lookup,
+      increasing cognitive load and reducing patient throughput.
+    </p>
+    <div class="red-strip mt-6">
+      <i class="fas fa-hospital"></i>
+      <p>
+        No unified system integrates <strong>structured documentation</strong>, <strong>ML-based differential diagnosis</strong>,
+        and <strong>validated medical textbook referencing</strong> in a single clinical workflow.
+      </p>
+    </div>
+    <div class="feat-grid mt-6">
+      <div class="feat-card">
+        <div class="feat-icon feat-icon-red"><i class="fas fa-clock"></i></div>
+        <h3>High Documentation Time</h3>
+        <p>Manual case sheets average 12+ minutes per patient, reducing daily throughput.</p>
+      </div>
+      <div class="feat-card">
+        <div class="feat-icon feat-icon-blue"><i class="fas fa-brain"></i></div>
+        <h3>Cognitive Overload</h3>
+        <p>Physicians must recall differential diagnoses from memory without decision support.</p>
+      </div>
+      <div class="feat-card">
+        <div class="feat-icon feat-icon-green"><i class="fas fa-book-open"></i></div>
+        <h3>Slow Textbook Lookup</h3>
+        <p>Physical or digital textbook searches disrupt the patient consultation flow.</p>
+      </div>
+      <div class="feat-card">
+        <div class="feat-icon feat-icon-amber"><i class="fas fa-layer-group"></i></div>
+        <h3>No Integrated System</h3>
+        <p>Existing tools handle documentation OR diagnosis — never both in one workflow.</p>
+      </div>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- ═══ WHY DECISION TREES & RF ═══════════════════════════════════ -->
+  <section id="why-rf">
+    <span class="section-label"><i class="fas fa-sitemap"></i> Model Selection</span>
+    <h2 class="section-title">Why Decision Trees &amp; Random Forest?</h2>
+    <p class="section-subtitle">
+      Chosen for interpretability, compatibility with sparse TF-IDF vectors, and strong multi-class performance.
+    </p>
+    <div class="feat-grid mt-6">
+      <div class="feat-card">
+        <div class="feat-icon feat-icon-red"><i class="fas fa-eye"></i></div>
+        <h3>Human-Readable Rules</h3>
+        <p>Decision paths can be explained to clinicians — critical for medical AI trust.</p>
+      </div>
+      <div class="feat-card">
+        <div class="feat-icon feat-icon-blue"><i class="fas fa-layer-group"></i></div>
+        <h3>Sparse TF-IDF Friendly</h3>
+        <p>Handles high-dimensional sparse vectors (max_features=5000, ngram_range=(1,2)) natively.</p>
+      </div>
+      <div class="feat-card">
+        <div class="feat-icon feat-icon-green"><i class="fas fa-wave-square"></i></div>
+        <h3>No Feature Scaling Needed</h3>
+        <p>Tree splits are threshold-based; no need for normalization or standardization.</p>
+      </div>
+      <div class="feat-card">
+        <div class="feat-icon feat-icon-amber"><i class="fas fa-shield-alt"></i></div>
+        <h3>Ensemble Reduces Variance</h3>
+        <p>Bootstrap sampling + random feature subsets across 400 trees reduces overfitting dramatically.</p>
+      </div>
     </div>
 
-    <nav class="fixed w-full z-50 glass border-b border-slate-800/50 px-8 py-4 flex justify-between items-center">
-        <div class="flex items-center gap-4">
-            <div class="bg-white p-1 rounded flex items-center justify-center shadow-md" style="height: 48px; width: 48px;">
-                <img src="mujlogo.jpg" alt="MUJ" class="h-full w-auto object-contain">
-            </div>
-            <div class="flex flex-col text-left">
-                <span class="text-xl font-black text-white leading-none uppercase tracking-tighter">PBL <span class="text-blue-500 italic">2026</span></span>
-                <span class="text-[9px] text-slate-400 font-bold uppercase tracking-widest mt-1">Dept. of Computer Science & Engineering</span>
-            </div>
+    <div class="card mt-6" style="background:var(--blue-light);border-color:rgba(26,95,168,.2);">
+      <div style="font-size:0.8rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--blue);margin-bottom:0.6rem;">Hyperparameters</div>
+      <div style="display:flex;flex-wrap:wrap;gap:0.75rem;">
+        <span class="badge badge-blue">n_estimators = 400</span>
+        <span class="badge badge-blue">max_depth = None</span>
+        <span class="badge badge-blue">max_features = "sqrt"</span>
+        <span class="badge badge-blue">criterion = "gini"</span>
+        <span class="badge badge-blue">TF-IDF max_features = 5000</span>
+        <span class="badge badge-blue">ngram_range = (1,2)</span>
+      </div>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- ═══ METHODOLOGY ═══════════════════════════════════════════════ -->
+  <section id="methodology">
+    <span class="section-label"><i class="fas fa-diagram-project"></i> System Design</span>
+    <h2 class="section-title">How CURA Works</h2>
+    <p class="section-subtitle">Three integrated components handling input, prediction, and retrieval.</p>
+
+    <div class="card card-lg mt-6">
+      <div class="step-flow">
+        <div class="step-item">
+          <div class="step-num step-num-red">1</div>
+          <h3>Symptom Input</h3>
+          <p>Doctor enters symptoms as free text. TF-IDF vectorizer converts text into a 5,000-dimensional feature vector using 1–2 gram tokens.</p>
         </div>
-        <div class="hidden md:flex gap-8 text-[11px] uppercase tracking-widest font-bold opacity-70">
-            <a href="#problem" class="hover:text-blue-400 transition">Problem</a>
-            <a href="#methodology" class="hover:text-blue-400 transition">Methodology</a>
-            <a href="#results" class="hover:text-blue-400 transition">Results</a>
-            <a href="#team" class="hover:text-blue-400 transition">Team</a>
+        <div class="step-item">
+          <div class="step-num step-num-blue">2</div>
+          <h3>RF Prediction</h3>
+          <p>400 decision trees each predict a disease class. Majority vote determines the final differential diagnosis prediction.</p>
         </div>
-    </nav>
+        <div class="step-item">
+          <div class="step-num step-num-gray">3</div>
+          <h3>RAG Retrieval</h3>
+          <p>Based on the prediction, the RAG engine retrieves exact textbook page references and generates a structured case sheet.</p>
+        </div>
+      </div>
+    </div>
+  </section>
 
-    <main class="max-w-6xl mx-auto px-6 pt-48 pb-32 space-y-32">
-        
-        <section class="text-center">
-            <div class="inline-block px-4 py-1 border border-slate-800 rounded-full text-slate-500 text-[10px] font-mono mb-6 uppercase tracking-widest">
-                ID: 23FE10CSE00135
+  <div class="divider"></div>
+
+  <!-- ═══ RANDOM FOREST TREE ════════════════════════════════════════ -->
+  <section id="rf-section">
+    <span class="section-label"><i class="fas fa-tree"></i> Model Internals</span>
+    <h2 class="section-title">Random Forest — Decision Tree Visualization</h2>
+    <p class="section-subtitle">
+      One representative tree from the trained model. Hover any node to learn what Gini, Samples, and Class mean.
+    </p>
+
+    <div class="card card-lg mt-6" style="overflow:visible;">
+      <div style="font-size:0.82rem;color:var(--gray-500);margin-bottom:1.5rem;display:flex;gap:1rem;flex-wrap:wrap;align-items:center;">
+        <span style="font-weight:700;color:var(--gray-700);">Node Legend:</span>
+        <span style="display:inline-flex;align-items:center;gap:5px;"><span style="width:12px;height:12px;background:#f8f9fa;border:2px solid #adb5bd;border-radius:3px;display:inline-block;"></span> Dimorphic Hemorrhoids</span>
+        <span style="display:inline-flex;align-items:center;gap:5px;"><span style="width:12px;height:12px;background:#e0f2fe;border:2px solid #0369a1;border-radius:3px;display:inline-block;"></span> Malaria</span>
+        <span style="display:inline-flex;align-items:center;gap:5px;"><span style="width:12px;height:12px;background:#dbeafe;border:2px solid #1d4ed8;border-radius:3px;display:inline-block;"></span> Pneumonia</span>
+        <span style="display:inline-flex;align-items:center;gap:5px;"><span style="width:12px;height:12px;background:#f5f3ff;border:2px solid #7c3aed;border-radius:3px;display:inline-block;"></span> Varicose Veins</span>
+        <span style="display:inline-flex;align-items:center;gap:5px;"><span style="width:12px;height:12px;background:#fef3c7;border:2px solid #d97706;border-radius:3px;display:inline-block;"></span> Arthritis</span>
+      </div>
+
+    <div class="card card-lg mt-6" style="overflow:visible;">
+      <!-- Legend row -->
+      <div style="font-size:0.82rem;color:var(--gray-500);margin-bottom:1.5rem;display:flex;gap:1rem;flex-wrap:wrap;align-items:center;">
+        <span style="font-weight:700;color:var(--gray-700);">Node Legend:</span>
+        <span style="display:inline-flex;align-items:center;gap:5px;"><span style="width:12px;height:12px;background:#f8f9fa;border:2px solid #adb5bd;border-radius:3px;display:inline-block;"></span> Dimorphic Hemorrhoids</span>
+        <span style="display:inline-flex;align-items:center;gap:5px;"><span style="width:12px;height:12px;background:#e0f2fe;border:2px solid #0369a1;border-radius:3px;display:inline-block;"></span> Malaria</span>
+        <span style="display:inline-flex;align-items:center;gap:5px;"><span style="width:12px;height:12px;background:#dbeafe;border:2px solid #1d4ed8;border-radius:3px;display:inline-block;"></span> Pneumonia</span>
+        <span style="display:inline-flex;align-items:center;gap:5px;"><span style="width:12px;height:12px;background:#f5f3ff;border:2px solid #7c3aed;border-radius:3px;display:inline-block;"></span> Varicose Veins</span>
+        <span style="display:inline-flex;align-items:center;gap:5px;"><span style="width:12px;height:12px;background:#fef3c7;border:2px solid #d97706;border-radius:3px;display:inline-block;"></span> Arthritis</span>
+        <span style="margin-left:auto;font-style:italic;color:var(--gray-400);">Hover any node →</span>
+      </div>
+
+      <!-- Two-column: tree + inspector -->
+      <div class="rf-inspector-wrap">
+
+        <!-- Tree area -->
+        <div id="rf-container" style="overflow:visible;position:relative;">
+          <svg id="rf-svg-canvas" aria-hidden="true"></svg>
+          <div id="rf-tree-body">
+
+            <!-- LEVEL 0: Root -->
+            <div class="tree-level" style="justify-content:center;">
+              <div class="rf-node rf-node--internal" tabindex="0"
+                data-id="root" data-parent=""
+                data-feature="run" data-threshold="0.152" data-gini="0.957"
+                data-samples="532" data-class="Dimorphic Hemorrhoids"
+                data-leaf="false"
+                data-explanation="The root split: if the TF-IDF weight of the term &quot;run&quot; in the symptom text is ≤ 0.152, follow the left (True) branch — the vast majority of 532 training samples go this way. Only 8 samples had a stronger &quot;run&quot; signal and branch right."
+                style="max-width:220px;">
+                <div class="rf-node__condition">run ≤ 0.152</div>
+                <div class="rf-node__chips">
+                  <span class="rf-chip rf-chip--gini">Gini: 0.957</span>
+                  <span class="rf-chip rf-chip--samples">Samples: 532</span>
+                  <span class="rf-chip rf-chip--pred">Dimorphic Hemorrhoids</span>
+                </div>
+              </div>
             </div>
 
-            <h1 class="text-6xl md:text-7xl font-extrabold mb-8 uppercase leading-tight">
-                <span class="gradient-text uppercase">CURA</span>
-            </h1>
+            <div class="tree-gap"></div>
 
-            <p class="text-slate-400 max-w-2xl mx-auto italic text-lg leading-relaxed border-l-2 border-blue-500/30 pl-6 text-left">
-                "CURA is an AI-powered clinical assistant that generates structured case sheets, predicts differential diagnoses using Random Forest models, and provides direct medical textbook references using Retrieval-Augmented Generation (RAG)."
-            </p>
-        </section>
-
-        <section id="problem" class="grid md:grid-cols-2 gap-12 items-stretch">
-            <div class="glass p-10 rounded-[2.5rem] flex flex-col justify-center border-l-4 border-blue-600">
-                <h2 class="text-3xl font-extrabold mb-6">Problem Statement</h2>
-                <p class="text-slate-400 leading-relaxed text-justify">
-                    In outpatient settings, doctors manually prepare case sheets and rely on memory or physical textbooks. This increases consultation time and cognitive load. There is no unified system that automates structured documentation while assisting with evidence-based diagnosis.
-                </p>
+            <!-- LEVEL 1 -->
+            <div class="tree-level" style="justify-content:space-between;padding:0 8%;">
+              <div class="rf-node rf-node--internal" tabindex="0"
+                data-id="n1" data-parent="root"
+                data-feature="muscle_ache" data-threshold="0.983" data-gini="0.957"
+                data-samples="524" data-class="Dimorphic Hemorrhoids"
+                data-leaf="false"
+                data-explanation="524 samples without a strong &quot;run&quot; signal are split further on &quot;muscle_ache&quot;. A threshold of 0.983 is very high, meaning only patients with an extremely strong muscle ache signal go right (9 samples → Malaria). The rest (515) continue left."
+                style="max-width:210px;">
+                <div class="rf-node__condition">muscle_ache ≤ 0.983</div>
+                <div class="rf-node__chips">
+                  <span class="rf-chip rf-chip--gini">Gini: 0.957</span>
+                  <span class="rf-chip rf-chip--samples">Samples: 524</span>
+                  <span class="rf-chip rf-chip--pred">Dimorphic Hemorrhoids</span>
+                </div>
+              </div>
+              <div class="rf-node rf-node--varicose" tabindex="0"
+                data-id="n2" data-parent="root"
+                data-feature="behalf_run" data-threshold="0.126" data-gini="0.428"
+                data-samples="8" data-class="Varicose Veins"
+                data-leaf="false"
+                data-explanation="Only 8 samples had run > 0.152 at the root. This node splits on &quot;behalf_run&quot; — a bigram feature. With Gini 0.428, these 8 samples are mostly Varicose Veins but not fully pure, so a further split is needed."
+                style="max-width:210px;">
+                <div class="rf-node__condition">behalf_run ≤ 0.126</div>
+                <div class="rf-node__chips">
+                  <span class="rf-chip rf-chip--gini">Gini: 0.428</span>
+                  <span class="rf-chip rf-chip--samples">Samples: 8</span>
+                  <span class="rf-chip rf-chip--pred">Varicose Veins</span>
+                </div>
+              </div>
             </div>
-            <div class="space-y-6">
-                <div class="glass p-7 rounded-3xl border-r-4 border-blue-500/50">
-                    <h3 class="text-blue-400 font-bold text-xs uppercase tracking-widest mb-2">Literature Review</h3>
-                    <p class="text-sm text-slate-500 italic">
-                        Existing symptom checkers provide generic outputs but lack structured medical documentation and validated textbook referencing.
-                    </p>
+
+            <div class="tree-gap"></div>
+
+            <!-- LEVEL 2 -->
+            <div class="tree-level" style="justify-content:space-between;padding:0 2%;">
+              <div class="rf-node rf-node--internal" tabindex="0"
+                data-id="n3" data-parent="n1"
+                data-feature="phlegm" data-threshold="0.125" data-gini="0.956"
+                data-samples="515" data-class="Dimorphic Hemorrhoids"
+                data-leaf="false"
+                data-explanation="515 samples without strong muscle ache are split on &quot;phlegm&quot;. Patients producing phlegm (weight > 0.125) branch right — 20 samples indicating a respiratory pathway toward Pneumonia. The majority (495) with no/low phlegm continue left."
+                style="max-width:190px;">
+                <div class="rf-node__condition">phlegm ≤ 0.125</div>
+                <div class="rf-node__chips">
+                  <span class="rf-chip rf-chip--gini">Gini: 0.956</span>
+                  <span class="rf-chip rf-chip--samples">Samples: 515</span>
+                  <span class="rf-chip rf-chip--pred">Dimorphic Hemorrhoids</span>
                 </div>
-                <div class="glass p-7 rounded-3xl border-r-4 border-purple-500/50">
-                    <h3 class="text-purple-400 font-bold text-xs uppercase tracking-widest mb-2">Innovation</h3>
-                    <p class="text-sm text-slate-500 italic">
-                        CURA integrates ML-based diagnosis, automated PDF case sheet generation, and a RAG-powered medical reference engine linking to exact textbook pages.
-                    </p>
+              </div>
+
+              <div class="rf-node rf-node--malaria" tabindex="0"
+                data-id="n4" data-parent="n1"
+                data-feature="—" data-threshold="—" data-gini="0.0"
+                data-samples="9" data-class="Malaria"
+                data-leaf="true"
+                data-explanation="A perfectly pure leaf: all 9 samples that had muscle_ache > 0.983 belong to Malaria. Strong muscle ache is a characteristic symptom of Malaria, and the model has cleanly separated this cluster. Gini = 0 confirms perfect purity."
+                style="max-width:165px;">
+                <div class="rf-node__condition">🍃 Leaf</div>
+                <div class="rf-node__chips">
+                  <span class="rf-chip rf-chip--gini">Gini: 0.0</span>
+                  <span class="rf-chip rf-chip--samples">Samples: 9</span>
                 </div>
+                <span class="class-badge cb-malaria">Malaria</span>
+              </div>
+
+              <div class="rf-node rf-node--varicose" tabindex="0"
+                data-id="n5" data-parent="n2"
+                data-feature="veins_legs" data-threshold="0.126" data-gini="0.375"
+                data-samples="7" data-class="Varicose Veins"
+                data-leaf="false"
+                data-explanation="7 of the 8 &quot;run&quot;-heavy samples had behalf_run ≤ 0.126. This node further splits on &quot;veins_legs&quot; — a highly relevant feature for vascular conditions. Gini 0.375 means the 7 samples are mostly Varicose Veins but not fully pure."
+                style="max-width:190px;">
+                <div class="rf-node__condition">veins_legs ≤ 0.126</div>
+                <div class="rf-node__chips">
+                  <span class="rf-chip rf-chip--gini">Gini: 0.375</span>
+                  <span class="rf-chip rf-chip--samples">Samples: 7</span>
+                  <span class="rf-chip rf-chip--pred">Varicose Veins</span>
+                </div>
+              </div>
+
+              <div class="rf-node rf-node--arthritis" tabindex="0"
+                data-id="n6" data-parent="n2"
+                data-feature="—" data-threshold="—" data-gini="0.0"
+                data-samples="1" data-class="Arthritis"
+                data-leaf="true"
+                data-explanation="A single sample with behalf_run > 0.126 reaches this leaf and is classified as Arthritis. With only 1 sample, this is a very specific branch. Gini = 0 (perfect purity by definition with 1 sample)."
+                style="max-width:165px;">
+                <div class="rf-node__condition">🍃 Leaf</div>
+                <div class="rf-node__chips">
+                  <span class="rf-chip rf-chip--gini">Gini: 0.0</span>
+                  <span class="rf-chip rf-chip--samples">Samples: 1</span>
+                </div>
+                <span class="class-badge cb-arthritis">Arthritis</span>
+              </div>
             </div>
-        </section>
 
-        <section id="methodology" class="space-y-12">
-            <h2 class="text-4xl font-black text-center uppercase tracking-tight">System <span class="text-blue-500">Methodology</span></h2>
-            <div class="grid md:grid-cols-3 gap-8">
-                <div class="glass p-8 rounded-3xl text-center">
-                    <i class="fas fa-database text-blue-500 text-3xl mb-4"></i>
-                    <h3 class="font-bold mb-2 uppercase text-xs tracking-widest">Dataset</h3>
-                    <p class="text-sm text-slate-500">
-                        Structured medical symptom dataset with encoded features and preprocessing for ML compatibility.
-                    </p>
+            <div class="tree-gap"></div>
+
+            <!-- LEVEL 3 -->
+            <div class="tree-level" style="justify-content:space-between;padding:0 1%;">
+              <div class="rf-node rf-node--internal" tabindex="0"
+                data-id="n7" data-parent="n3"
+                data-feature="neck_extremely" data-threshold="0.1" data-gini="0.956"
+                data-samples="495" data-class="Dimorphic Hemorrhoids"
+                data-leaf="false"
+                data-explanation="495 low-phlegm samples are split on &quot;neck_extremely&quot; — likely a bigram for 'neck extreme pain/stiffness'. With a threshold of 0.1, even a faint neck symptom signal triggers a right branch. Gini 0.956 shows this large group is still very mixed across many disease classes."
+                style="max-width:190px;">
+                <div class="rf-node__condition">neck_extremely ≤ 0.1</div>
+                <div class="rf-node__chips">
+                  <span class="rf-chip rf-chip--gini">Gini: 0.956</span>
+                  <span class="rf-chip rf-chip--samples">Samples: 495</span>
+                  <span class="rf-chip rf-chip--pred">Dimorphic Hemorrhoids</span>
                 </div>
-                <div class="glass p-8 rounded-3xl text-center">
-                    <i class="fas fa-microchip text-purple-500 text-3xl mb-4"></i>
-                    <h3 class="font-bold mb-2 uppercase text-xs tracking-widest">ML Model</h3>
-                    <p class="text-sm text-slate-500">
-                        Decision Trees and Random Forest classifier for multi-class disease prediction and differential diagnosis ranking.
-                    </p>
+              </div>
+
+              <div class="rf-node rf-node--pneumonia" tabindex="0"
+                data-id="n8" data-parent="n3"
+                data-feature="lot_we" data-threshold="0.08" data-gini="0.389"
+                data-samples="20" data-class="Pneumonia"
+                data-leaf="false"
+                data-explanation="20 samples with phlegm > 0.125 (respiratory indicator) are further refined here. &quot;lot_we&quot; is likely a bigram from phrases like 'a lot, we'. Gini 0.389 indicates a moderately pure Pneumonia cluster — further splitting will resolve ambiguity."
+                style="max-width:175px;">
+                <div class="rf-node__condition">lot_we ≤ 0.08</div>
+                <div class="rf-node__chips">
+                  <span class="rf-chip rf-chip--gini">Gini: 0.389</span>
+                  <span class="rf-chip rf-chip--samples">Samples: 20</span>
+                  <span class="rf-chip rf-chip--pred">Pneumonia</span>
                 </div>
-                <div class="glass p-8 rounded-3xl text-center border-2 border-green-500/20 bg-green-500/5">
-                    <i class="fab fa-python text-green-500 text-3xl mb-4"></i>
-                    <h3 class="font-bold mb-4 uppercase text-xs tracking-widest text-green-400">Reference Engine</h3>
-                    <p class="text-sm text-slate-500">
-                        Retrieval-Augmented Generation (RAG) used to fetch and open trusted medical textbooks on exact page numbers.
-                    </p>
+              </div>
+
+              <div class="rf-node rf-node--varicose" tabindex="0"
+                data-id="n9" data-parent="n5"
+                data-feature="appears" data-threshold="0.128" data-gini="0.397"
+                data-samples="6" data-class="Varicose Veins"
+                data-leaf="false"
+                data-explanation="6 of 7 vascular-pattern samples are split on 'appears' — likely from phrases like 'appears swollen/raised'. Gini 0.397 shows these 6 are mostly Varicose Veins. A final split below will achieve full purity."
+                style="max-width:175px;">
+                <div class="rf-node__condition">appears ≤ 0.128</div>
+                <div class="rf-node__chips">
+                  <span class="rf-chip rf-chip--gini">Gini: 0.397</span>
+                  <span class="rf-chip rf-chip--samples">Samples: 6</span>
+                  <span class="rf-chip rf-chip--pred">Varicose Veins</span>
                 </div>
+              </div>
+
+              <div class="rf-node rf-node--varicose" tabindex="0"
+                data-id="n10" data-parent="n5"
+                data-feature="—" data-threshold="—" data-gini="0.5"
+                data-samples="1" data-class="Varicose Veins"
+                data-leaf="true"
+                data-explanation="1 sample with veins_legs > 0.126 reaches this leaf. Predicted as Varicose Veins. Gini = 0.5 can appear with 1 sample in sklearn due to the impurity calculation; the prediction is still unambiguous."
+                style="max-width:155px;">
+                <div class="rf-node__condition">🍃 Leaf</div>
+                <div class="rf-node__chips">
+                  <span class="rf-chip rf-chip--gini">Gini: 0.5</span>
+                  <span class="rf-chip rf-chip--samples">Samples: 1</span>
+                </div>
+                <span class="class-badge cb-varicose">Varicose Veins</span>
+              </div>
             </div>
-        </section>
 
-        <section id="results" class="glass p-12 rounded-[3.5rem] border-t-4 border-blue-500">
-            <h2 class="text-3xl font-black mb-12 text-center uppercase tracking-tight">Results & <span class="text-blue-500">Analysis</span></h2>
-            <div class="grid md:grid-cols-2 gap-16 items-center">
-                <div class="h-80"><canvas id="resultsChart"></canvas></div>
-                <div class="space-y-6">
-                    <div class="p-6 rounded-2xl bg-white/5 flex justify-between items-center border border-white/10 shadow-inner">
-                        <span class="text-slate-400 font-bold uppercase text-xs tracking-widest">Accuracy</span>
-                        <span class="text-blue-400 font-mono font-black text-3xl">92%</span>
-                    </div>
-                    <p class="text-slate-500 text-sm italic text-justify leading-relaxed">
-                        Random Forest model achieved high predictive accuracy while automated case sheet generation reduced documentation effort by approximately 30%.
-                    </p>
+            <div class="tree-gap-sm"></div>
+
+            <!-- LEVEL 4: Collapsed stubs -->
+            <div class="tree-level" style="justify-content:space-between;padding:0 0%;">
+              <div class="rf-node rf-node--dimorphic" tabindex="0"
+                data-id="n11" data-parent="n7"
+                data-feature="(deeper)" data-threshold="—" data-gini="—"
+                data-samples="—" data-class="Dimorphic Hemorrhoids"
+                data-leaf="false"
+                data-explanation="The tree continues splitting below this point on further TF-IDF features. Because max_depth=None, trees grow until all leaves are pure. This subtree (neck_extremely ≤ 0.1, left branch) eventually produces Dimorphic Hemorrhoid leaf predictions."
+                style="max-width:150px;opacity:0.6;">
+                <div class="rf-node__condition" style="font-size:0.72rem;">↓ Deeper</div>
+                <div class="rf-node__chips">
+                  <span class="rf-chip rf-chip--pred" style="font-size:0.65rem;">Left subtree</span>
                 </div>
+              </div>
+
+              <div class="rf-node rf-node--dimorphic" tabindex="0"
+                data-id="n12" data-parent="n7"
+                data-feature="(deeper)" data-threshold="—" data-gini="—"
+                data-samples="—" data-class="Dimorphic Hemorrhoids"
+                data-leaf="false"
+                data-explanation="Neck-symptom positive samples (neck_extremely > 0.1) continue splitting further. This right subtree refines predictions for patients presenting with neck-related symptoms alongside the primary feature path."
+                style="max-width:150px;opacity:0.6;">
+                <div class="rf-node__condition" style="font-size:0.72rem;">↓ Deeper</div>
+                <div class="rf-node__chips">
+                  <span class="rf-chip rf-chip--pred" style="font-size:0.65rem;">Right subtree</span>
+                </div>
+              </div>
+
+              <div class="rf-node rf-node--pneumonia" tabindex="0"
+                data-id="n13" data-parent="n8"
+                data-feature="(deeper)" data-threshold="—" data-gini="—"
+                data-samples="—" data-class="Pneumonia"
+                data-leaf="false"
+                data-explanation="The phlegm-positive, lot_we-negative branch continues here. These samples will be further refined toward Pneumonia or related respiratory conditions by additional TF-IDF feature splits below."
+                style="max-width:150px;opacity:0.6;">
+                <div class="rf-node__condition" style="font-size:0.72rem;">↓ Deeper</div>
+                <div class="rf-node__chips">
+                  <span class="rf-chip rf-chip--pred" style="font-size:0.65rem;">Left subtree</span>
+                </div>
+              </div>
+
+              <div class="rf-node rf-node--pneumonia" tabindex="0"
+                data-id="n14" data-parent="n8"
+                data-feature="(deeper)" data-threshold="—" data-gini="—"
+                data-samples="—" data-class="Pneumonia"
+                data-leaf="false"
+                data-explanation="The lot_we-positive respiratory branch continues splitting. Samples here have both phlegm and lot_we signals, pointing strongly toward Pneumonia. Deeper splits refine the final classification."
+                style="max-width:150px;opacity:0.6;">
+                <div class="rf-node__condition" style="font-size:0.72rem;">↓ Deeper</div>
+                <div class="rf-node__chips">
+                  <span class="rf-chip rf-chip--pred" style="font-size:0.65rem;">Right subtree</span>
+                </div>
+              </div>
+
+              <div class="rf-node rf-node--varicose" tabindex="0"
+                data-id="n15" data-parent="n9"
+                data-feature="(deeper)" data-threshold="—" data-gini="—"
+                data-samples="—" data-class="Varicose Veins"
+                data-leaf="false"
+                data-explanation="appears ≤ 0.128 left branch — these 6 vascular samples continue splitting. The model will isolate pure Varicose Vein cases from any remaining noise using additional symptom features."
+                style="max-width:150px;opacity:0.6;">
+                <div class="rf-node__condition" style="font-size:0.72rem;">↓ Deeper</div>
+                <div class="rf-node__chips">
+                  <span class="rf-chip rf-chip--pred" style="font-size:0.65rem;">Left subtree</span>
+                </div>
+              </div>
+
+              <div class="rf-node rf-node--varicose" tabindex="0"
+                data-id="n16" data-parent="n9"
+                data-feature="(deeper)" data-threshold="—" data-gini="—"
+                data-samples="—" data-class="Varicose Veins"
+                data-leaf="false"
+                data-explanation="appears > 0.128 right branch — the 'appears' feature (swelling appearance language) combined with the vascular path leads here. Further splits yield pure Varicose Vein leaves."
+                style="max-width:150px;opacity:0.6;">
+                <div class="rf-node__condition" style="font-size:0.72rem;">↓ Deeper</div>
+                <div class="rf-node__chips">
+                  <span class="rf-chip rf-chip--pred" style="font-size:0.65rem;">Right subtree</span>
+                </div>
+              </div>
             </div>
-        </section>
 
-        <section id="team" class="text-center pt-10 border-t border-slate-900">
-            <h2 class="text-[10px] font-black text-slate-600 uppercase tracking-[0.5em] mb-12">Academic Credits</h2>
-            <div class="flex flex-wrap justify-center gap-10">
-                <div class="glass px-12 py-8 rounded-[2rem] border-b-4 border-blue-600">
-                    <p class="text-[9px] font-bold text-blue-500 mb-2 uppercase tracking-widest">Project Guide</p>
-                    <p class="font-black text-xl text-slate-100">Dr. Shashank Gupta</p>
-                </div>
-                <div class="glass px-12 py-8 rounded-[2rem] border-b-4 border-slate-700">
-                    <p class="text-[9px] font-bold text-slate-400 mb-2 uppercase tracking-widest">Team Member</p>
-                    <p class="font-black text-xl text-slate-100">Manasveer Singh Basra</p>
-                    <p class="text-[10px] text-slate-500 mt-1">23FE10CSE00135</p>
-                </div>
+          </div><!-- /rf-tree-body -->
+        </div><!-- /rf-container -->
+
+        <!-- Node Inspector Panel -->
+        <div class="rf-inspector" id="rfInspector">
+          <div class="rf-inspector__header">
+            <div class="rf-inspector__dot"></div>
+            <div class="rf-inspector__title">Node Inspector</div>
+          </div>
+          <div class="rf-inspector__body">
+            <!-- Empty state -->
+            <div class="rf-inspector__empty" id="rfInspectorEmpty">
+              <i class="fas fa-hand-pointer"></i>
+              Hover any node in the tree to inspect its feature, threshold, and what the split means.
             </div>
-        </section>
-    </main>
+            <!-- Populated state -->
+            <div class="rf-inspector__content" id="rfInspectorContent">
+              <div class="rf-insp-row">
+                <div class="rf-insp-label">Feature</div>
+                <div class="rf-insp-value mono" id="inspFeature">—</div>
+              </div>
+              <div class="rf-insp-row">
+                <div class="rf-insp-label">Threshold</div>
+                <div class="rf-insp-value mono" id="inspThreshold">—</div>
+              </div>
+              <div class="rf-insp-divider"></div>
+              <div class="rf-insp-row">
+                <div class="rf-insp-label">Gini Impurity</div>
+                <div class="rf-insp-value" id="inspGini">—</div>
+              </div>
+              <div class="rf-insp-row">
+                <div class="rf-insp-label">Sample Count</div>
+                <div class="rf-insp-value" id="inspSamples">—</div>
+              </div>
+              <div class="rf-insp-row">
+                <div class="rf-insp-label">Predicted Class</div>
+                <span class="rf-insp-pill" id="inspClass">—</span>
+              </div>
+              <div class="rf-insp-row">
+                <div class="rf-insp-label">Node Type</div>
+                <span class="rf-insp-pill rf-insp-pill-gray" id="inspType">—</span>
+              </div>
+              <div class="rf-insp-divider"></div>
+              <div class="rf-insp-explanation" id="inspExplanation">—</div>
+            </div>
+          </div>
+        </div>
 
-    <footer class="py-12 text-center bg-black/40 border-t border-slate-900">
-        <p class="text-slate-600 text-[10px] font-bold tracking-[0.3em] uppercase mb-2">Manipal University Jaipur</p>
-        <p class="text-slate-500 text-[9px] font-medium tracking-[0.2em] uppercase opacity-50">Department of Computer Science & Engineering • 2026</p>
-    </footer>
+      </div><!-- /rf-inspector-wrap -->
 
-    <script>
-        let sec = 0;
-        let timer = null;
-        function startTimer() {
-            timer = setInterval(() => {
-                sec++;
-                let m = Math.floor(sec / 60);
-                let s = sec % 60;
-                document.getElementById('displayTime').innerText =
-                    `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
-                if (sec >= 600) clearInterval(timer);
-            }, 1000);
-        }
+      <p style="margin-top:1.75rem;font-size:0.78rem;color:var(--gray-400);text-align:center;">
+        Feature names are TF-IDF token weights from symptom text. Values extracted from the trained Random Forest estimator.
+        Left branch = True (condition ≤ threshold), Right branch = False (condition > threshold). sklearn convention.
+      </p>
+    </div>
 
-        const ctx = document.getElementById('resultsChart').getContext('2d');
-        new Chart(ctx, {
-            type: 'bar',
-            data: {
-                labels: ['Traditional Process', 'CURA System'],
-                datasets: [{
-                    data: [65, 92],
-                    backgroundColor: ['#1e293b', '#3b82f6'],
-                    borderRadius: 15,
-                    barThickness: 50
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: { legend: { display: false } }
-            }
-        });
-    </script>
+    <!-- How RF works explainer -->
+    <div class="card mt-6" style="background:var(--gray-50);border-color:var(--gray-200);">
+      <h3 style="font-size:1.15rem;font-weight:700;margin-bottom:1rem;">How Random Forest Works in CURA</h3>
+      <div class="feat-grid">
+        <div class="feat-card">
+          <div class="feat-icon feat-icon-red"><i class="fas fa-sitemap"></i></div>
+          <h3>400 Diverse Trees</h3>
+          <p>Each tree trains on a bootstrapped sample with random feature subsets (√5000 ≈ 71 features per split).</p>
+        </div>
+        <div class="feat-card">
+          <div class="feat-icon feat-icon-blue"><i class="fas fa-check-double"></i></div>
+          <h3>Majority Voting</h3>
+          <p>Each tree votes for a disease class. The class with the most votes becomes the final prediction.</p>
+        </div>
+        <div class="feat-card">
+          <div class="feat-icon feat-icon-green"><i class="fas fa-shield-alt"></i></div>
+          <h3>Gini Criterion</h3>
+          <p>Each split minimises the weighted Gini impurity of child nodes, creating purer partitions.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- ═══ RESULTS ════════════════════════════════════════════════════ -->
+  <section id="results">
+    <span class="section-label"><i class="fas fa-chart-bar"></i> Performance</span>
+    <h2 class="section-title">Model Results</h2>
+    <p class="section-subtitle">Evaluated on held-out test set. Random Forest trained on TF-IDF symptom vectors.</p>
+
+    <div class="results-grid mt-6">
+      <div>
+        <div class="metrics-strip">
+          <div class="stat-big">
+            <div class="stat-big__val">96%</div>
+            <div class="stat-big__lbl">Accuracy</div>
+          </div>
+          <div class="stat-big">
+            <div class="stat-big__val">0.96</div>
+            <div class="stat-big__lbl">F1-Score (macro)</div>
+          </div>
+          <div class="stat-big">
+            <div class="stat-big__val">400</div>
+            <div class="stat-big__lbl">Estimators</div>
+          </div>
+          <div class="stat-big">
+            <div class="stat-big__val">41</div>
+            <div class="stat-big__lbl">Classes</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card" style="padding:1.5rem;">
+        <div style="font-size:0.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--gray-400);margin-bottom:1rem;">Documentation Time Comparison</div>
+        <canvas id="resultsChart" style="max-height:220px;"></canvas>
+      </div>
+    </div>
+
+    <!-- Clinical Impact -->
+    <div class="feat-grid mt-6">
+      <div class="feat-card">
+        <div class="feat-icon feat-icon-red"><i class="fas fa-stopwatch"></i></div>
+        <h3>42% Faster Documentation</h3>
+        <p>CURA reduces case sheet time from ~12 min to ~7 min per patient consultation.</p>
+      </div>
+      <div class="feat-card">
+        <div class="feat-icon feat-icon-blue"><i class="fas fa-clock"></i></div>
+        <h3>Instant Textbook Retrieval</h3>
+        <p>RAG retrieves relevant textbook pages in under 2 seconds during live OPD.</p>
+      </div>
+      <div class="feat-card">
+        <div class="feat-icon feat-icon-green"><i class="fas fa-file-medical"></i></div>
+        <h3>Structured Case Sheets</h3>
+        <p>Consistent, well-formatted documentation improves continuity of care and referrals.</p>
+      </div>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- ═══ COMMUNITY RECOGNITION ════════════════════════════════════ -->
+  <section id="community">
+    <span class="section-label"><i class="fas fa-trophy"></i> Community Recognition</span>
+    <h2 class="section-title">Community Recognition</h2>
+
+    <div class="recognition-meta">
+      <span class="recognition-badge recognition-badge-gold">
+        <i class="fas fa-medal"></i> 2nd Place — Turing Hacks 2.0
+      </span>
+      <span class="recognition-badge recognition-badge-red">
+        <i class="fas fa-university"></i> Manipal University Jaipur
+      </span>
+      <span class="recognition-badge" style="background:var(--gray-100);color:var(--gray-600);border:1.5px solid var(--gray-200);">
+        <i class="fas fa-users"></i> Organized by Turing Sapiens
+      </span>
+    </div>
+
+    <p style="color:var(--gray-600);font-size:1rem;line-height:1.75;max-width:680px;margin-bottom:2rem;">
+      CURA secured <strong style="color:var(--gray-900);">2nd Place</strong> at
+      <strong style="color:var(--gray-900);">Turing Hacks 2.0</strong>, organized by Turing Sapiens,
+      for outstanding innovation in AI-powered clinical workflow automation. The project demonstrated
+      exceptional problem-solving in applying Random Forest and RAG to real-world clinical documentation challenges.
+    </p>
+
+    <!-- Certificate image -->
+    <div class="cert-wrapper">
+      <div class="cert-frame" id="certTrigger" role="button" tabindex="0"
+           aria-label="View certificate fullscreen" title="Click to view fullscreen">
+        <img src="TURINGcerti.jpeg" alt="Certificate of Achievement — Turing Hacks 2.0, 2nd Place, Manas Basra (Syntax Syndicate), Manipal University Jaipur" />
+        <div class="cert-zoom-hint">
+          <i class="fas fa-expand"></i> Click to expand
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Certificate Modal -->
+  <div id="certModal" role="dialog" aria-modal="true" aria-label="Certificate fullscreen view">
+    <button id="certModalClose" aria-label="Close certificate">
+      <i class="fas fa-times"></i>
+    </button>
+    <img id="certModalImg" src="TURINGcerti.jpeg"
+         alt="Certificate of Achievement — Turing Hacks 2.0, 2nd Place" />
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- ═══ TEAM ══════════════════════════════════════════════════════ -->
+  <section id="team">
+    <span class="section-label"><i class="fas fa-users"></i> Academic Credits</span>
+    <h2 class="section-title">Project Team</h2>
+
+    <div class="team-grid mt-6">
+      <div class="team-card">
+        <div class="team-avatar"><i class="fas fa-user-doctor"></i></div>
+        <div class="team-role">Project Guide</div>
+        <div class="team-name">Dr. Shashank Gupta</div>
+        <div class="team-id">Faculty Mentor</div>
+      </div>
+      <div class="team-card">
+        <div class="team-avatar"><i class="fas fa-user-graduate"></i></div>
+        <div class="team-role">Team Member</div>
+        <div class="team-name">Manasveer Singh Basra</div>
+        <div class="team-id">23FE10CSE00135</div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <span>CURA</span> · AI-Powered Clinical Assistant · PBL 2026 · All rights reserved
+</footer>
+
+<script>
+// ─── CHART ─────────────────────────────────────────────────────────
+const ctx = document.getElementById('resultsChart').getContext('2d');
+new Chart(ctx, {
+  type: 'bar',
+  data: {
+    labels: ['Manual Workflow', 'CURA Workflow'],
+    datasets: [{
+      label: 'Documentation Time (minutes)',
+      data: [12, 7],
+      backgroundColor: ['#e5e7eb', '#c8102e'],
+      borderRadius: 8,
+      borderSkipped: false,
+    }]
+  },
+  options: {
+    responsive: true,
+    plugins: {
+      legend: { display: false },
+      tooltip: { callbacks: { label: ctx => ` ${ctx.raw} minutes` } }
+    },
+    scales: {
+      y: {
+        beginAtZero: true,
+        ticks: { color: '#9ca3af', font: { size: 11 } },
+        grid: { color: '#f3f4f6' },
+        border: { display: false }
+      },
+      x: {
+        ticks: { color: '#4b5563', font: { size: 12, weight: '600' } },
+        grid: { display: false },
+        border: { display: false }
+      }
+    }
+  }
+});
+
+// ─── NODE INSPECTOR ──────────────────────────────────────────────────
+const CLASS_PILL_MAP = {
+  'Dimorphic Hemorrhoids': 'rf-insp-pill-gray',
+  'Malaria':               'rf-insp-pill-blue',
+  'Pneumonia':             'rf-insp-pill-blue',
+  'Varicose Veins':        'rf-insp-pill-purple',
+  'Arthritis':             'rf-insp-pill-amber',
+  '(deeper)':              'rf-insp-pill-gray',
+};
+
+function setupInspector() {
+  const inspector   = document.getElementById('rfInspector');
+  const emptyState  = document.getElementById('rfInspectorEmpty');
+  const content     = document.getElementById('rfInspectorContent');
+  const elFeature   = document.getElementById('inspFeature');
+  const elThreshold = document.getElementById('inspThreshold');
+  const elGini      = document.getElementById('inspGini');
+  const elSamples   = document.getElementById('inspSamples');
+  const elClass     = document.getElementById('inspClass');
+  const elType      = document.getElementById('inspType');
+  const elExplan    = document.getElementById('inspExplanation');
+
+  if (!inspector) return;
+
+  let activeNode = null;
+
+  function populateInspector(node) {
+    const feature   = node.dataset.feature   || '—';
+    const threshold = node.dataset.threshold || '—';
+    const gini      = node.dataset.gini      || '—';
+    const samples   = node.dataset.samples   || '—';
+    const cls       = node.dataset.class     || '—';
+    const isLeaf    = node.dataset.leaf === 'true';
+    const explain   = node.dataset.explanation || '';
+
+    elFeature.textContent   = feature;
+    elThreshold.textContent = threshold !== '—' && threshold !== '' ? `≤ ${threshold}` : '—';
+    elGini.textContent      = gini;
+    elSamples.textContent   = samples;
+    elClass.textContent     = cls;
+    elExplan.innerHTML      = explain;
+
+    // Class pill colour
+    const pillClass = CLASS_PILL_MAP[cls] || 'rf-insp-pill-gray';
+    elClass.className = `rf-insp-pill ${pillClass}`;
+
+    // Node type
+    elType.textContent  = isLeaf ? 'Leaf node (prediction)' : 'Internal node (split)';
+    elType.className    = isLeaf
+      ? 'rf-insp-pill rf-insp-pill-green'
+      : 'rf-insp-pill rf-insp-pill-red';
+
+    // Toggle visibility
+    emptyState.style.display = 'none';
+    content.classList.add('visible');
+    inspector.classList.add('active');
+  }
+
+  function clearInspector() {
+    emptyState.style.display = '';
+    content.classList.remove('visible');
+    inspector.classList.remove('active');
+  }
+
+  const nodes = document.querySelectorAll('#rf-tree-body .rf-node');
+  nodes.forEach(node => {
+    node.addEventListener('mouseenter', () => {
+      if (activeNode) activeNode.classList.remove('rf-hovered');
+      activeNode = node;
+      node.classList.add('rf-hovered');
+      populateInspector(node);
+    });
+    node.addEventListener('focus', () => {
+      if (activeNode) activeNode.classList.remove('rf-hovered');
+      activeNode = node;
+      node.classList.add('rf-hovered');
+      populateInspector(node);
+    });
+    node.addEventListener('mouseleave', () => {
+      node.classList.remove('rf-hovered');
+      // Don't clear — keep last inspected data visible until new node hovered
+    });
+    node.addEventListener('blur', () => {
+      node.classList.remove('rf-hovered');
+    });
+  });
+
+  // Clear only when mouse leaves entire container
+  const container = document.getElementById('rf-container');
+  if (container) {
+    container.addEventListener('mouseleave', () => {
+      if (activeNode) activeNode.classList.remove('rf-hovered');
+      activeNode = null;
+      clearInspector();
+    });
+  }
+}
+
+// ─── RF TREE SVG CONNECTORS ──────────────────────────────────────────
+const EDGES = [
+  ['root','n1','True'],
+  ['root','n2','False'],
+  ['n1','n3','True'],
+  ['n1','n4','False'],
+  ['n2','n5','True'],
+  ['n2','n6','False'],
+  ['n3','n7','True'],
+  ['n3','n8','False'],
+  ['n5','n9','True'],
+  ['n5','n10','False'],
+  ['n7','n11','True'],
+  ['n7','n12','False'],
+  ['n8','n13','True'],
+  ['n8','n14','False'],
+  ['n9','n15','True'],
+  ['n9','n16','False'],
+];
+
+function drawRFTree() {
+  const container = document.getElementById('rf-container');
+  const svg       = document.getElementById('rf-svg-canvas');
+  const body      = document.getElementById('rf-tree-body');
+  if (!container || !svg || !body) return;
+
+  const h = body.scrollHeight;
+  const w = container.clientWidth;
+  svg.setAttribute('viewBox', `0 0 ${w} ${h}`);
+  svg.setAttribute('width', w);
+  svg.setAttribute('height', h);
+  svg.innerHTML = '';
+
+  const containerRect = body.getBoundingClientRect();
+
+  EDGES.forEach(([fromId, toId, label]) => {
+    const fromEl = body.querySelector(`[data-id="${fromId}"]`);
+    const toEl   = body.querySelector(`[data-id="${toId}"]`);
+    if (!fromEl || !toEl) return;
+
+    const fr = fromEl.getBoundingClientRect();
+    const tr = toEl.getBoundingClientRect();
+
+    const x1 = fr.left - containerRect.left + fr.width / 2;
+    const y1 = fr.top  - containerRect.top  + fr.height - 2;
+    const x2 = tr.left - containerRect.left + tr.width  / 2;
+    const y2 = tr.top  - containerRect.top  + 2;
+    const mid = (y1 + y2) / 2;
+
+    const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+    path.setAttribute('d', `M ${x1} ${y1} C ${x1} ${mid} ${x2} ${mid} ${x2} ${y2}`);
+    path.setAttribute('class', 'rf-link');
+    path.dataset.from = fromId;
+    path.dataset.to   = toId;
+    svg.appendChild(path);
+
+    // Branch label
+    const tx = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+    const lx  = x1 + (x2 < x1 ? -8 : 8);
+    const ly  = y1 + (y2 - y1) * 0.28;
+    tx.setAttribute('x', lx);
+    tx.setAttribute('y', ly);
+    tx.setAttribute('class', 'rf-branch-label');
+    tx.setAttribute('text-anchor', x2 < x1 ? 'end' : 'start');
+    tx.textContent = label;
+    svg.appendChild(tx);
+  });
+}
+
+// Path highlight: highlight SVG edges along the ancestor path
+function setupPathHighlight() {
+  const body = document.getElementById('rf-tree-body');
+  const svg  = document.getElementById('rf-svg-canvas');
+  if (!body || !svg) return;
+
+  function getAncestorChain(startId) {
+    const chain = new Set();
+    let cur = startId;
+    while (cur) {
+      chain.add(cur);
+      const el = body.querySelector(`[data-id="${cur}"]`);
+      cur = el ? el.dataset.parent : null;
+      if (cur === '') break;
+    }
+    return chain;
+  }
+
+  body.querySelectorAll('.rf-node').forEach(node => {
+    node.addEventListener('mouseenter', () => {
+      const chain = getAncestorChain(node.dataset.id);
+      svg.querySelectorAll('.rf-link').forEach(p => {
+        p.classList.toggle('rf-link--hi', chain.has(p.dataset.from) && chain.has(p.dataset.to));
+      });
+    });
+    node.addEventListener('focus', () => {
+      const chain = getAncestorChain(node.dataset.id);
+      svg.querySelectorAll('.rf-link').forEach(p => {
+        p.classList.toggle('rf-link--hi', chain.has(p.dataset.from) && chain.has(p.dataset.to));
+      });
+    });
+    node.addEventListener('mouseleave', () => {
+      svg.querySelectorAll('.rf-link').forEach(p => p.classList.remove('rf-link--hi'));
+    });
+    node.addEventListener('blur', () => {
+      svg.querySelectorAll('.rf-link').forEach(p => p.classList.remove('rf-link--hi'));
+    });
+  });
+}
+
+let rafId;
+function scheduleDraw() {
+  cancelAnimationFrame(rafId);
+  rafId = requestAnimationFrame(() => {
+    drawRFTree();
+    setupPathHighlight();
+  });
+}
+
+window.addEventListener('load', () => {
+  scheduleDraw();
+  setupInspector();
+});
+// ─── CERTIFICATE MODAL ───────────────────────────────────────────────
+(function() {
+  const modal   = document.getElementById('certModal');
+  const trigger = document.getElementById('certTrigger');
+  const closeBtn= document.getElementById('certModalClose');
+  if (!modal || !trigger) return;
+
+  function openModal() {
+    modal.classList.add('open');
+    document.body.classList.add('modal-open');
+    closeBtn.focus();
+  }
+
+  function closeModal() {
+    modal.classList.remove('open');
+    document.body.classList.remove('modal-open');
+    trigger.focus();
+  }
+
+  trigger.addEventListener('click', openModal);
+  trigger.addEventListener('keydown', e => {
+    if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openModal(); }
+  });
+
+  closeBtn.addEventListener('click', closeModal);
+
+  // Click outside image closes modal
+  modal.addEventListener('click', e => {
+    if (e.target === modal) closeModal();
+  });
+
+  // Escape key closes modal
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape' && modal.classList.contains('open')) closeModal();
+  });
+})();
+</script>
+
 </body>
 </html>
