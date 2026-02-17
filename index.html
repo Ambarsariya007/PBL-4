@@ -821,11 +821,11 @@
   <div class="nav-logo">CURA</div>
   <ul class="nav-links">
     <li><a href="#problem">Problem</a></li>
-    <li><a href="#why-rf">Why RF</a></li>
-    <li><a href="#methodology">Methodology</a></li>
-    <li><a href="#rf-section">Model</a></li>
+    <li><a href="#methodology">System Design</a></li>
+    <li><a href="#why-rf">Model Selection</a></li>
+    <li><a href="#rf-section">Tree Viz</a></li>
     <li><a href="#results">Results</a></li>
-    <li><a href="#community">Hackathon</a></li>
+    <li><a href="#community">Recognition</a></li>
     <li><a href="#team">Team</a></li>
   </ul>
 </nav>
@@ -913,6 +913,35 @@
 
   <div class="divider"></div>
 
+  <!-- ═══ METHODOLOGY ═══════════════════════════════════════════════ -->
+  <section id="methodology">
+    <span class="section-label"><i class="fas fa-diagram-project"></i> System Design</span>
+    <h2 class="section-title">How CURA Works</h2>
+    <p class="section-subtitle">Three integrated components handling input, prediction, and retrieval.</p>
+
+    <div class="card card-lg mt-6">
+      <div class="step-flow">
+        <div class="step-item">
+          <div class="step-num step-num-red">1</div>
+          <h3>Symptom Input</h3>
+          <p>Doctor enters symptoms as free text. TF-IDF vectorizer converts text into a 5,000-dimensional feature vector using 1–2 gram tokens.</p>
+        </div>
+        <div class="step-item">
+          <div class="step-num step-num-blue">2</div>
+          <h3>RF Prediction</h3>
+          <p>400 decision trees each predict a disease class. Majority vote determines the final differential diagnosis prediction.</p>
+        </div>
+        <div class="step-item">
+          <div class="step-num step-num-gray">3</div>
+          <h3>RAG Retrieval</h3>
+          <p>Based on the prediction, the RAG engine retrieves exact textbook page references and generates a structured case sheet.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
   <!-- ═══ WHY DECISION TREES & RF ═══════════════════════════════════ -->
   <section id="why-rf">
     <span class="section-label"><i class="fas fa-sitemap"></i> Model Selection</span>
@@ -952,35 +981,6 @@
         <span class="badge badge-blue">criterion = "gini"</span>
         <span class="badge badge-blue">TF-IDF max_features = 5000</span>
         <span class="badge badge-blue">ngram_range = (1,2)</span>
-      </div>
-    </div>
-  </section>
-
-  <div class="divider"></div>
-
-  <!-- ═══ METHODOLOGY ═══════════════════════════════════════════════ -->
-  <section id="methodology">
-    <span class="section-label"><i class="fas fa-diagram-project"></i> System Design</span>
-    <h2 class="section-title">How CURA Works</h2>
-    <p class="section-subtitle">Three integrated components handling input, prediction, and retrieval.</p>
-
-    <div class="card card-lg mt-6">
-      <div class="step-flow">
-        <div class="step-item">
-          <div class="step-num step-num-red">1</div>
-          <h3>Symptom Input</h3>
-          <p>Doctor enters symptoms as free text. TF-IDF vectorizer converts text into a 5,000-dimensional feature vector using 1–2 gram tokens.</p>
-        </div>
-        <div class="step-item">
-          <div class="step-num step-num-blue">2</div>
-          <h3>RF Prediction</h3>
-          <p>400 decision trees each predict a disease class. Majority vote determines the final differential diagnosis prediction.</p>
-        </div>
-        <div class="step-item">
-          <div class="step-num step-num-gray">3</div>
-          <h3>RAG Retrieval</h3>
-          <p>Based on the prediction, the RAG engine retrieves exact textbook page references and generates a structured case sheet.</p>
-        </div>
       </div>
     </div>
   </section>
@@ -1340,15 +1340,63 @@
 
       </div><!-- /rf-inspector-wrap -->
 
-      <p style="margin-top:1.75rem;font-size:0.78rem;color:var(--gray-400);text-align:center;">
+      <p style="margin-top:1.75rem;font-size:0.82rem;color:#000000;text-align:center;font-weight:500;">
         Feature names are TF-IDF token weights from symptom text. Values extracted from the trained Random Forest estimator.
         Left branch = True (condition ≤ threshold), Right branch = False (condition > threshold). sklearn convention.
       </p>
     </div>
 
+    <!-- Understanding Features in the Decision Tree -->
+    <div class="card mt-6" style="border-left: 4px solid var(--red); background: var(--white);">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:1.1rem;">
+        <div style="width:36px;height:36px;border-radius:9px;background:var(--red-pale);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+          <i class="fas fa-info-circle" style="color:var(--red);font-size:1rem;"></i>
+        </div>
+        <h3 style="font-size:1.1rem;font-weight:700;color:#000000;margin:0;">Understanding Features in the Decision Tree</h3>
+      </div>
+      <ul style="list-style:none;display:flex;flex-direction:column;gap:0.7rem;padding:0;margin:0;">
+        <li style="display:flex;gap:10px;align-items:flex-start;">
+          <span style="width:7px;height:7px;border-radius:50%;background:var(--red);flex-shrink:0;margin-top:7px;"></span>
+          <span style="font-size:0.92rem;color:#000000;line-height:1.65;">
+            <strong style="color:#000000;">Feature names</strong> (e.g., <code style="background:var(--gray-100);padding:1px 6px;border-radius:4px;font-size:0.85rem;">run</code>, <code style="background:var(--gray-100);padding:1px 6px;border-radius:4px;font-size:0.85rem;">phlegm</code>, <code style="background:var(--gray-100);padding:1px 6px;border-radius:4px;font-size:0.85rem;">muscle_ache</code>) represent TF-IDF weights of symptom tokens extracted from the patient's free-text input.
+          </span>
+        </li>
+        <li style="display:flex;gap:10px;align-items:flex-start;">
+          <span style="width:7px;height:7px;border-radius:50%;background:var(--red);flex-shrink:0;margin-top:7px;"></span>
+          <span style="font-size:0.92rem;color:#000000;line-height:1.65;">
+            <strong style="color:#000000;">Threshold</strong> (e.g., <code style="background:var(--gray-100);padding:1px 6px;border-radius:4px;font-size:0.85rem;">≤ 0.152</code>) is the cut-off value: if the feature weight is at or below this value, the sample goes <em>left</em>; otherwise it goes <em>right</em>.
+          </span>
+        </li>
+        <li style="display:flex;gap:10px;align-items:flex-start;">
+          <span style="width:7px;height:7px;border-radius:50%;background:var(--red);flex-shrink:0;margin-top:7px;"></span>
+          <span style="font-size:0.92rem;color:#000000;line-height:1.65;">
+            <strong style="color:#000000;">Gini impurity</strong> measures how mixed the samples at a node are. A value of <code style="background:var(--gray-100);padding:1px 6px;border-radius:4px;font-size:0.85rem;">0.0</code> means all samples belong to one class (perfectly pure); values near <code style="background:var(--gray-100);padding:1px 6px;border-radius:4px;font-size:0.85rem;">1.0</code> indicate high class mixture.
+          </span>
+        </li>
+        <li style="display:flex;gap:10px;align-items:flex-start;">
+          <span style="width:7px;height:7px;border-radius:50%;background:var(--red);flex-shrink:0;margin-top:7px;"></span>
+          <span style="font-size:0.92rem;color:#000000;line-height:1.65;">
+            <strong style="color:#000000;">Samples</strong> is the count of training examples that reach a given node during training. Larger counts near the root shrink as the tree narrows toward leaves.
+          </span>
+        </li>
+        <li style="display:flex;gap:10px;align-items:flex-start;">
+          <span style="width:7px;height:7px;border-radius:50%;background:var(--red);flex-shrink:0;margin-top:7px;"></span>
+          <span style="font-size:0.92rem;color:#000000;line-height:1.65;">
+            <strong style="color:#000000;">Leaf nodes</strong> (🍃) make the final disease prediction — no further splitting occurs. The predicted class is whichever disease has the majority of samples at that leaf.
+          </span>
+        </li>
+        <li style="display:flex;gap:10px;align-items:flex-start;">
+          <span style="width:7px;height:7px;border-radius:50%;background:var(--red);flex-shrink:0;margin-top:7px;"></span>
+          <span style="font-size:0.92rem;color:#000000;line-height:1.65;">
+            <strong style="color:#000000;">Predicted class</strong> at internal nodes shows the majority class of all samples currently at that node — useful for understanding what the model would predict if splitting stopped early.
+          </span>
+        </li>
+      </ul>
+    </div>
+
     <!-- How RF works explainer -->
     <div class="card mt-6" style="background:var(--gray-50);border-color:var(--gray-200);">
-      <h3 style="font-size:1.15rem;font-weight:700;margin-bottom:1rem;">How Random Forest Works in CURA</h3>
+      <h3 style="font-size:1.15rem;font-weight:700;margin-bottom:1rem;color:#000000;">How Random Forest Works in CURA</h3>
       <div class="feat-grid">
         <div class="feat-card">
           <div class="feat-icon feat-icon-red"><i class="fas fa-sitemap"></i></div>
